@@ -235,7 +235,9 @@ if (pkg) {
   const hasHtml2canvas = !!pkg.dependencies?.['html2canvas'];
   const hasJsPdf = !!pkg.dependencies?.['jspdf'];
   const toolConfigTxt = readText('src/tool/tool.config.ts') || '';
-  const needsHtml2canvas = /['"]png['"]|['"]jpeg['"]|['"]webp['"]/.test(toolConfigTxt) && (readText('src/tool/exporters/utils.ts') || '').includes('html2canvas');
+  const needsHtml2canvas =
+    /['"]png['"]|['"]jpeg['"]|['"]webp['"]/.test(toolConfigTxt) &&
+    (readText('src/tool/exporters/utils.ts') || '').includes('html2canvas');
   const needsJspdf = (readText('src/tool/exporters/pdf.ts') || '').includes('jspdf');
 
   if ((needsHtml2canvas && !hasHtml2canvas) || (needsJspdf && !hasJsPdf)) {
