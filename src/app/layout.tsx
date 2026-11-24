@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import { ThemeProvider, ThemeScript, ToastProvider } from '@itsjust/core';
 import { generateToolMetadata } from '@/lib/seo';
-import { toolConfig } from '@/tool/tool.config';
+import toolConfig from '@/tool/tool.config';
 import { templateMetadata } from '@/tool/template-metadata';
 import './globals.css';
 

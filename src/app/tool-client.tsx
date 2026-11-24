@@ -10,16 +10,7 @@ import {
 } from 'react';
 import { ToolShell, useTool, ImportExport } from '@itsjust/core';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
-import {
-  Canvas,
-  Sidebar,
-  Toolbar,
-  deserializeState,
-  serializeState,
-  summaryText,
-  templateBaseVersion,
-  toolConfig,
-} from '@/tool';
+import { toolConfig, templateBaseVersion, Canvas, Toolbar, Sidebar, summaryText } from '@/tool';
 import { ipAddressClassCalculatorTool } from '@/tool/tool-definition';
 import type { ToolState } from '@/tool/types';
 
@@ -54,7 +45,7 @@ export default function ToolClient() {
       const serialized = decompressFromEncodedURIComponent(encodedState);
       if (!serialized) throw new Error('Invalid shared URL');
       const parsed: unknown = JSON.parse(serialized);
-      const deserialized = deserializeState(parsed);
+      const deserialized = ipAddressClassCalculatorTool.deserialize(parsed);
       if (!deserialized.success) throw new Error(deserialized.error);
       setToolData(deserialized.data);
       showToast('Loaded state from shared URL', 'success');
@@ -77,7 +68,7 @@ export default function ToolClient() {
   const handleShare = useCallback(async () => {
     setIsSharing(true);
     try {
-      const serialized = serializeState(state);
+      const serialized = ipAddressClassCalculatorTool.serialize(state);
       const encodedState = compressToEncodedURIComponent(serialized);
       if (!encodedState) throw new Error('Failed to encode state for URL');
       const url = new URL(window.location.href);
@@ -110,7 +101,7 @@ export default function ToolClient() {
       <Toolbar
         state={state}
         onChange={(next) => setToolData(() => next)}
-        onClear={() => setToolData((prev) => ({ ...prev, ipInput: '' }))}
+        onClear={() => setToolData((prev) => ({ ...prev, history: [] }))}
         onCopy={() => void handleCopyResult()}
       />
       <ImportExport
@@ -157,6 +148,7 @@ export default function ToolClient() {
           'Ready'
         )}
       </span>
+      <span className="status-slot status-slot-mode">{state.mode}</span>
       <span className="status-slot status-slot-summary">{summaryText(state)}</span>
       <span className="status-slot status-slot-history">{state.history.length} saved</span>
       <span className="status-slot status-slot-tool-version">Tool v{toolConfig.version}</span>

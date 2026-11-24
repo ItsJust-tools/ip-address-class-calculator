@@ -1,10 +1,33 @@
-import { DEFAULT_STATE, MAX_HISTORY, type HistoryEntry, type ToolState } from './types';
-import { analyzeIp } from './ip-utils';
-import type { DeserializeResult } from '@itsjust/core';
+import type { Tool, DeserializeResult } from '@itsjust/core';
+import toolConfig from './tool.config';
+import {
+  DEFAULT_STATE,
+  MAX_HISTORY,
+  type BatchMode,
+  type HistoryEntry,
+  type IpAnalysis,
+  type ToolState,
+  parseInput,
+  analysisSummary,
+  batchResults,
+  resultText,
+  stepsFor,
+} from './types';
+
+const VALID_MODES: BatchMode[] = ['single', 'batch'];
 
 /** Serialize tool state into a compact JSON string for share/import. */
 export function serializeState(state: ToolState): string {
-  return JSON.stringify({ ipInput: state.ipInput, history: state.history });
+  return JSON.stringify({
+    mode: state.mode,
+    address: state.address,
+    batch: state.batch,
+    history: state.history,
+  });
+}
+
+function stringOr(value: unknown, fallback: string): string {
+  return typeof value === 'string' ? value : fallback;
 }
 
 function validHistory(value: unknown): HistoryEntry[] {
@@ -25,12 +48,19 @@ export function deserializeState(data: unknown): DeserializeResult<ToolState> {
   if (typeof data !== 'object' || data === null || Array.isArray(data)) {
     return {
       success: false,
-      error: 'Invalid data format: expected IP class calculator state object',
+      error: 'Invalid data format: expected IP address class calculator state object',
     };
   }
   const v = data as Record<string, unknown>;
-  const ipInput = typeof v.ipInput === 'string' ? v.ipInput : DEFAULT_STATE.ipInput;
-  const state: ToolState = { ipInput, history: validHistory(v.history) };
+  const mode: BatchMode = VALID_MODES.includes(v.mode as BatchMode)
+    ? (v.mode as BatchMode)
+    : DEFAULT_STATE.mode;
+  const state: ToolState = {
+    mode,
+    address: stringOr(v.address, DEFAULT_STATE.address),
+    batch: stringOr(v.batch, DEFAULT_STATE.batch),
+    history: validHistory(v.history),
+  };
   return { success: true, data: state };
 }
 
@@ -38,14 +68,6 @@ export function deserializeState(data: unknown): DeserializeResult<ToolState> {
 export function withHistory(state: ToolState, text: string, now = new Date()): ToolState {
   const entry: HistoryEntry = { text, createdAt: now.toISOString() };
   return { ...state, history: [entry, ...state.history].slice(0, MAX_HISTORY) };
-}
-
-/** Save the current IP analysis into history (no-op when the IP is invalid). */
-export function saveAnalysis(state: ToolState, now = new Date()): ToolState {
-  const a = analyzeIp(state.ipInput);
-  if (!a) return state;
-  const text = `${a.octets.join('.')} → Class ${a.ipClass} (/${a.defaultMaskCidr}) — ${a.statusLabel}`;
-  return withHistory(state, text, now);
 }
 
 /** True when a serialized string round-trips back to the same state. */
@@ -58,8 +80,10 @@ export function roundTrips(state: ToolState): boolean {
   }
 }
 
-import { toolConfig } from './tool.config';
-import type { Tool } from '@itsjust/core';
+const ipAnalysisOrNull = (value: string): IpAnalysis | null => {
+  const analysis = parseInput(value);
+  return 'error' in analysis ? null : analysis;
+};
 
 export const ipAddressClassCalculatorTool: Tool<ToolState> = {
   id: toolConfig.id,
@@ -76,3 +100,5 @@ export const ipAddressClassCalculatorTool: Tool<ToolState> = {
     { format: 'pdf', loader: () => import('./exporters/pdf') },
   ],
 };
+
+export { ipAnalysisOrNull, resultText, stepsFor, analysisSummary, batchResults };

@@ -1,37 +1,41 @@
-import type { ExportFormat, ToolTheme, FeatureFlags } from '@itsjust/core';
+import type { ToolConfig } from '@itsjust/core';
 
-export const toolConfig: {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  version: string;
-  exportFormats: ExportFormat[];
-  features: FeatureFlags;
-  theme: ToolTheme;
-} = {
+const toolConfig = {
   id: 'ip-address-class-calculator',
   name: 'IP Address Class Calculator',
-  category: 'Developer',
   description:
-    'Analyze an IPv4 address to determine its class, network range, default mask, private/public status, and computed network details.',
+    'Enter an IPv4 address and instantly see its class (A/B/C/D/E), default subnet mask, network and broadcast address, and private/public status.',
   version: '1.0.0',
-  exportFormats: ['png', 'jpeg', 'webp', 'json', 'pdf'],
+  exportFormats: ['png', 'jpeg', 'webp', 'pdf'],
   features: {
     export: true,
     autoSave: true,
-    undoRedo: true,
+    undoRedo: false,
     sidebar: true,
     statusBar: true,
     darkMode: true,
   },
   theme: {
-    accent: '#6366f1',
-    accentHover: '#4f46e5',
-    accentSubtle: 'rgba(99, 102, 241, 0.12)',
+    accent: '#0ea5e9',
+    accentHover: '#0284c7',
+    accentSubtle: 'rgba(14, 165, 233, 0.12)',
     brand: 'IP Address Class Calculator',
     icon: '🌐',
   },
-};
+  shortcuts: [
+    {
+      title: 'IP Address Class Calculator',
+      shortcuts: [
+        { keys: 'S', label: 'Single mode', description: 'switch to single-address mode' },
+        { keys: 'B', label: 'Batch mode', description: 'switch to batch mode' },
+        {
+          keys: 'C',
+          label: 'Copy result',
+          description: 'copy the current result to the clipboard',
+        },
+      ],
+    },
+  ],
+} satisfies ToolConfig;
 
 export default toolConfig;
