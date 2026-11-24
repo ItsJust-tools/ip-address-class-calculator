@@ -1,27 +1,30 @@
 # IP Address Class Calculator
 
-Enter an IPv4 address and instantly see its class (A/B/C/D/E), default subnet mask, network and broadcast address, and private/public status.
+Analyze an IPv4 address to determine its class, network range, default mask, private/public status, and computed network details.
 
-**Live:** deployed as `ip-address-class-calculator` (URL provisioned at deploy time)
+**Live:** [ip-address-class-calculator.itsjust.tools](https://ip-address-class-calculator.itsjust.tools)
 
 ## Features
 
-- Classify any IPv4 address into class A, B, C, D, or E with a plain-language explanation
-- Shows the default subnet mask for the address class
-- Computes network address, first/last usable host, and broadcast address for any CIDR suffix
-- Detects private (RFC 1918), loopback, link-local (APIPA) and public ranges
-- Supports CIDR suffix input (e.g. `192.168.1.10/24`) and recomputes the effective mask
-- Binary representation of address and mask
-- Batch mode: paste multiple addresses and classify them all at once
-- Copy results to clipboard and shareable URL state
-- 100%% client-side — no data ever leaves your browser
+- Live IPv4 input with instant validation and clear error messages
+- Detects the address class (A/B/C/D/E) with documented class ranges
+- Shows the default subnet mask, network address, and broadcast address for the classful default
+- Detects private vs public vs loopback vs APIPA vs multicast vs reserved addresses
+- CIDR notation display and usable host counts for the class network
+- Accepts both dotted notation and simple integer input (0–4294967295)
+- Copyable result summary and example IP chips for common addresses
+- Educational reference panel explaining classful addressing (RFC 791), private ranges (RFC 1918), loopback (RFC 1122), APIPA (RFC 3927), multicast (RFC 5771), and CIDR (RFC 1519)
+- 100% client-side — no data ever leaves your browser
 
-## Keyboard shortcuts
+## Classful reference
 
-| Key | Action       |
-| --- | ------------ |
-| `B` | Batch mode   |
-| `C` | Copy summary |
+| Class | First octet range | Default mask  | Default CIDR |
+| ----- | ----------------- | ------------- | ------------ |
+| A     | 0–127             | 255.0.0.0     | /8           |
+| B     | 128–191           | 255.255.0.0   | /16          |
+| C     | 192–223           | 255.255.255.0 | /24          |
+| D     | 224–239           | multicast     | n/a          |
+| E     | 240–255           | experimental  | n/a          |
 
 ## Development
 

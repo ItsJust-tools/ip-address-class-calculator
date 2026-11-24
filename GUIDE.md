@@ -593,7 +593,7 @@ The jsdom environment doesn't implement `Blob.prototype.text`. The template alre
 
 ### Preflight fails with stale references
 
-Run `node scripts/preflight.mjs` after renaming. It checks for hardcoded template values such as the default tool name and id placeholders.
+Run `node scripts/preflight.mjs` after renaming. It checks for hardcoded template values like `itsjust.tools`, `My Tool`, and `template-tool`.
 
 ### Build fails with module not found
 

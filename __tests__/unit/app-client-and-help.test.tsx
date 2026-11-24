@@ -38,12 +38,7 @@ vi.mock('@itsjust/core', () => ({
   ),
   useTool: () => ({
     state: {
-      data: {
-        mode: 'single',
-        address: '192.168.1.10/24',
-        batch: '',
-        history: [],
-      },
+      data: { ipInput: '10.0.0.1', history: [] },
       setData: mockSetData,
       isDirty: false,
       lastSaved: 'just now',
@@ -59,14 +54,15 @@ vi.mock('@itsjust/core', () => ({
 
 vi.mock('@/tool', () => ({
   toolConfig: {
-    id: '1795287972',
-    name: 'Percentage Calculator',
+    id: 'ip-address-class-calculator',
+    name: 'IP Address Class Calculator',
     version: '1.0.0',
     features: { sidebar: true },
-    theme: { brand: 'Percentage Calculator' },
   },
   templateBaseVersion: '1.1.0',
-  Canvas: ({ state }: { state: Record<string, unknown> }) => <div>canvas:{String(state.mode)}</div>,
+  Canvas: ({ state }: { state: Record<string, unknown> }) => (
+    <div>canvas:{String(state.ipInput)}</div>
+  ),
   Toolbar: () => <div>toolbar</div>,
   Sidebar: () => <div>sidebar</div>,
   summaryText: () => 'summary',
@@ -75,15 +71,7 @@ vi.mock('@/tool', () => ({
 vi.mock('@/tool/tool-definition', () => ({
   ipAddressClassCalculatorTool: {
     serialize: (state: unknown) => JSON.stringify(state),
-    deserialize: () => ({
-      success: true,
-      data: {
-        mode: 'single',
-        address: '192.168.1.10/24',
-        batch: '',
-        history: [],
-      },
-    }),
+    deserialize: () => ({ success: true, data: { ipInput: '10.0.0.1', history: [] } }),
   },
 }));
 

@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { generateJsonLd, generateToolMetadata } from '@/lib/seo';
 import toolConfig from '@/tool/tool.config';
 import { getPublicSiteUrl, templateMetadata } from '@/tool/template-metadata';
-import { ipAddressClassCalculatorTool as toolInstance } from '@/tool/tool-definition';
+import { ipAddressClassCalculatorTool } from '@/tool/tool-definition';
 import { Canvas } from '@/tool/components/Canvas';
 import { Sidebar } from '@/tool/components/Sidebar';
 import { Toolbar } from '@/tool/components/Toolbar';
@@ -93,36 +93,31 @@ describe('app and seo', () => {
   it('covers tool definition and helper exports', async () => {
     expect(cn('a', undefined, 'b', false, null, 'c')).toBe('a b c');
     expect(getPublicSiteUrl()).toBe('http://localhost:3000');
-    expect(toolInstance.name).toBe(toolConfig.name);
+    expect(ipAddressClassCalculatorTool.name).toBe(toolConfig.name);
     expect(
-      toolInstance.deserialize({
-        mode: 'batch',
-        address: '8.8.8.8',
-        batch: '10.0.0.1',
-        history: [{ text: '192.168.1.10/24', createdAt: '2026-11-23T10:00:00.000Z' }],
+      ipAddressClassCalculatorTool.deserialize({
+        ipInput: '8.8.8.8',
+        history: [{ text: 'ok', createdAt: '2026-11-24T10:00:00.000Z' }],
       })
     ).toEqual({
       success: true,
       data: {
-        mode: 'batch',
-        address: '8.8.8.8',
-        batch: '10.0.0.1',
-        history: [{ text: '192.168.1.10/24', createdAt: '2026-11-23T10:00:00.000Z' }],
+        ipInput: '8.8.8.8',
+        history: [{ text: 'ok', createdAt: '2026-11-24T10:00:00.000Z' }],
       },
     });
-    const repaired = toolInstance.deserialize({ nope: true });
+    const repaired = ipAddressClassCalculatorTool.deserialize({ nope: true });
     expect(repaired.success).toBe(true);
     if (repaired.success) {
-      expect(repaired.data.mode).toBe(BASE_DEFAULT_STATE.mode);
+      expect(repaired.data.ipInput).toBe(BASE_DEFAULT_STATE.ipInput);
       expect(repaired.data.history).toEqual([]);
     }
-    const invalid = toolInstance.deserialize('nope');
-    expect(invalid.success).toBe(false);
-    expect(toolInstance.serialize({ ...BASE_DEFAULT_STATE, address: '8.8.8.8/32' })).toContain(
-      '"address":"8.8.8.8/32"'
-    );
+    expect(
+      ipAddressClassCalculatorTool.serialize({ ...BASE_DEFAULT_STATE, ipInput: '1.2.3.4' })
+    ).toContain('"ipInput":"1.2.3.4"');
     const exporters =
-      (toolInstance as { exporters?: Array<{ loader: ExporterLoader }> }).exporters ?? [];
+      (ipAddressClassCalculatorTool as { exporters?: Array<{ loader: ExporterLoader }> })
+        .exporters ?? [];
     expect(exporters).toHaveLength(4);
     const first = exporters[0];
     expect(first).toBeDefined();
@@ -142,12 +137,26 @@ describe('app and seo', () => {
           onCopy={() => {}}
         />
         <Sidebar state={{ ...BASE_DEFAULT_STATE }} onChange={() => {}} />
-        <Canvas state={{ ...BASE_DEFAULT_STATE, address: '192.168.1.10/24' }} onChange={() => {}} />
+        <Canvas state={{ ...BASE_DEFAULT_STATE, ipInput: '192.168.1.1' }} onChange={() => {}} />
       </>
     );
 
-    expect(screen.getByTestId('mode-tab-single')).toBeInTheDocument();
-    expect(screen.getByTestId('result-card')).toBeInTheDocument();
-    expect(screen.getByTestId('result-main')).toHaveTextContent('Class C — 192.168.1.10/24');
+    expect(screen.getByTestId('ip-class-sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('ip-class-canvas')).toBeInTheDocument();
+    expect(screen.getByTestId('ip-result')).toBeInTheDocument();
+    expect(screen.getByTestId('result-class')).toHaveTextContent('C');
+  });
+
+  it('shows error message for invalid input in canvas', () => {
+    render(<Canvas state={{ ...BASE_DEFAULT_STATE, ipInput: '999.1.1.1' }} onChange={() => {}} />);
+    expect(screen.getByTestId('ip-error')).toHaveTextContent('out of range');
+  });
+
+  it('loads an example chip into the input', () => {
+    const onChange = vi.fn();
+    render(<Canvas state={{ ...BASE_DEFAULT_STATE, ipInput: '' }} onChange={onChange} />);
+    const chips = screen.getAllByRole('button', { name: /127\.0\.0\.1/ });
+    chips[0]!.click();
+    expect(onChange).toHaveBeenCalledWith({ ...BASE_DEFAULT_STATE, ipInput: '127.0.0.1' });
   });
 });

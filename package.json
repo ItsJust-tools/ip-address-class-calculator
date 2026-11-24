@@ -1,14 +1,14 @@
 {
   "name": "ip-address-class-calculator",
-  "version": "1.4.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Classify IPv4 addresses into classes A-E with default masks, network/broadcast computation, range detection, batch mode and shareable state.",
+  "description": "Analyze an IPv4 address to determine its class, network range, default mask, private/public status, and computed network details.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ItsJust-tools/ip-address-class-calculator.git"
   },
-  "homepage": "https://github.com/ItsJust-tools/ip-address-class-calculator",
+  "homepage": "https://ip-address-class-calculator.itsjust.tools",
   "workspaces": [
     "packages/*"
   ],

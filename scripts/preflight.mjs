@@ -235,15 +235,12 @@ if (pkg) {
   const hasHtml2canvas = !!pkg.dependencies?.['html2canvas'];
   const hasJsPdf = !!pkg.dependencies?.['jspdf'];
   const toolConfigTxt = readText('src/tool/tool.config.ts') || '';
-  const needsHtml2canvas =
-    /['"]png['"]|['"]jpeg['"]|['"]webp['"]/.test(toolConfigTxt) &&
-    (readText('src/tool/exporters/utils.ts') || '').includes('html2canvas');
-  const needsJspdf = (readText('src/tool/exporters/pdf.ts') || '').includes('jspdf');
+  const needsImageExport = /['"]png['"]|['"]jpeg['"]|['"]webp['"]|['"]pdf['"]/.test(toolConfigTxt);
 
-  if ((needsHtml2canvas && !hasHtml2canvas) || (needsJspdf && !hasJsPdf)) {
+  if (needsImageExport && !(hasHtml2canvas && hasJsPdf)) {
     warn('Image/PDF export formats declared but html2canvas/jspdf not in dependencies');
-  } else if (hasHtml2canvas || hasJsPdf) {
-    warn('html2canvas/jspdf in dependencies but not referenced by exporters');
+  } else if (!needsImageExport && (hasHtml2canvas || hasJsPdf)) {
+    warn('html2canvas/jspdf in dependencies but no image/PDF formats declared');
   } else {
     ok('Dependencies match declared export formats');
   }
